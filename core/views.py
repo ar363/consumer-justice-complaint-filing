@@ -3,11 +3,13 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.utils import timezone
+from django.db.models import Count
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema
 import json
+from datetime import datetime, timedelta
 
 from .models import PendingFormRequest, Submission
 from .serializers import PendingFormRequestSerializer, SubmissionSerializer, GrievanceDataSerializer
@@ -33,6 +35,39 @@ def register_complaint(request):
         })
     
     return render(request, "register_complaint.html")
+
+
+def grievance_history(request):
+    """View to display grievance history"""
+    submissions = Submission.objects.all().order_by('-submitted_at')
+    
+    # Calculate statistics
+    total_count = submissions.count()
+    
+    # This month count
+    now = timezone.now()
+    start_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    this_month_count = submissions.filter(submitted_at__gte=start_of_month).count()
+    
+    # This week count
+    start_of_week = now - timedelta(days=now.weekday())
+    start_of_week = start_of_week.replace(hour=0, minute=0, second=0, microsecond=0)
+    this_week_count = submissions.filter(submitted_at__gte=start_of_week).count()
+    
+    # Parse submission data for template
+    submissions_with_data = []
+    for submission in submissions:
+        submission.submission_data = submission.get_submission_data()
+        submissions_with_data.append(submission)
+    
+    context = {
+        'submissions': submissions_with_data,
+        'total_count': total_count,
+        'this_month_count': this_month_count,
+        'this_week_count': this_week_count,
+    }
+    
+    return render(request, "grievance_history.html", context)
 
 
 class PendingFormRequestListCreateView(generics.ListCreateAPIView):

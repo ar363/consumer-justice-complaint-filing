@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path("user/register-complaint.php", views.register_complaint, name="register_complaint"),
+    path("user/grievance-history.php", views.grievance_history, name="grievance_history"),
     
     # API endpoints
     path("api/form-requests/", views.PendingFormRequestListCreateView.as_view(), name="form_requests"),

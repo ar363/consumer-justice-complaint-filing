@@ -75,8 +75,11 @@ class GrievanceFormAutoFiller {
             if (data.declaration) {
                 const checkbox = document.querySelector('input[name="declaration"]');
                 if (checkbox) {
-                    checkbox.checked = true;
+                    await this.delay(this.fieldDelay);
                     this.highlightElement(checkbox.parentElement);
+                    checkbox.click(); // Use click instead of setting checked directly
+                    await this.delay(500);
+                    this.removeHighlight(checkbox.parentElement);
                 }
             }
             
@@ -156,8 +159,8 @@ class GrievanceFormAutoFiller {
         const submitButton = document.querySelector('.submit-btn');
         
         if (submitButton) {
-            // Highlight submit button
-            this.highlightElement(submitButton);
+            // Focus on submit button without highlighting it yellow
+            submitButton.focus();
             
             // Wait a moment for visual effect
             await this.delay(500);

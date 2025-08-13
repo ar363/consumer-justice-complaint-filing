@@ -193,7 +193,7 @@
             <ul>
                 <li><a href="#">Dashboard</a></li>
                 <li class="active"><a href="#">Register Grievance</a></li>
-                <li><a href="#">Grievance History</a></li>
+                <li><a href="/user/grievance-history.php">Grievance History</a></li>
             </ul>
         </div>
         
@@ -430,7 +430,8 @@
             .then(data => {
                 if (data.status === 'success') {
                     alert('Grievance submitted successfully!');
-                    this.reset(); // Reset form
+                    // Redirect to grievance history
+                    // window.location.href = '/user/grievance-history.php';
                 } else {
                     alert('Error submitting grievance');
                 }
