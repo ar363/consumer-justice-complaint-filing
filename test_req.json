@@ -1,0 +1,16 @@
+{
+    "grievanceType": "grievance",
+    "grievanceClassification": "service_issue",
+    "state": "KARNATAKA",
+    "purchaseCity": "Bangalore",
+    "sectorIndustry": "Airlines",
+    "category": "Flight Cancellation",
+    "company": "IndiGo Airlines",
+    "natureOfGrievance": "Flight was cancelled without proper notice and compensation",
+    "productValue": "1000_5000",
+    "dealerInfo": "Booked through airline website directly",
+    "grievanceDetails": "My flight was cancelled last minute causing significant inconvenience and additional costs for accommodation",
+    "expectation": "refund",
+    "registeredWithCompany": "no",
+    "declaration": true
+}

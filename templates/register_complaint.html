@@ -201,11 +201,12 @@
             <h2 class="form-title">Grievance Registration Form</h2>
             
             <form id="grievanceForm" method="post">
+                {% csrf_token %}
                 <div class="form-row">
                     <div class="form-group">
                         <label for="grievanceType">Grievance Type<span class="required">*</span></label>
                         <select id="grievanceType" name="grievanceType" required>
-                            <option value="">Grievance</option>
+                            <option value="grievance">Grievance</option>
                             <option value="complaint">Complaint</option>
                             <option value="suggestion">Suggestion</option>
                             <option value="inquiry">Inquiry</option>
@@ -407,6 +408,39 @@
             </form>
         </div>
     </div>
+    
+    <!-- Include auto-fill JavaScript -->
+    <script src="/static/js/auto-fill.js"></script>
+    
+    <script>
+        // Handle form submission with AJAX
+        document.getElementById('grievanceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            
+            fetch('/user/register-complaint.php', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Grievance submitted successfully!');
+                    this.reset(); // Reset form
+                } else {
+                    alert('Error submitting grievance');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error submitting grievance');
+            });
+        });
+    </script>
     
 </body>
 </html>
