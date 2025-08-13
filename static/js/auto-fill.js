@@ -76,6 +76,11 @@ class GrievanceFormAutoFiller {
                 const checkbox = document.querySelector('input[name="declaration"]');
                 if (checkbox) {
                     await this.delay(this.fieldDelay);
+                    
+                    // Scroll to checkbox if needed
+                    this.scrollToElement(checkbox);
+                    await this.delay(300);
+                    
                     this.highlightElement(checkbox.parentElement);
                     checkbox.click(); // Use click instead of setting checked directly
                     await this.delay(500);
@@ -107,6 +112,12 @@ class GrievanceFormAutoFiller {
             return;
         }
         
+        // Scroll to the element if it's out of view
+        this.scrollToElement(element);
+        
+        // Wait a moment for scroll to complete
+        await this.delay(300);
+        
         // Highlight the field
         this.highlightElement(element);
         
@@ -121,14 +132,34 @@ class GrievanceFormAutoFiller {
                 element.dispatchEvent(new Event('change'));
             }
         } else if (element.tagName === 'TEXTAREA' || element.type === 'text') {
-            // For text inputs and textareas, type with effect
+            // For text inputs and textareas, type with dynamic speed based on content length
             element.value = '';
             element.focus();
+            
+            // Calculate dynamic typing speed
+            const idealFillTime = 400; // Ideal 0.4 seconds for normal fields
+            const maxFillTime = 1500; // Maximum 1.5 seconds for large text
+            const minTypingSpeed = 10; // Minimum delay between characters (ms)
+            const maxTypingSpeed = 100; // Maximum delay between characters (ms)
+            
+            // Calculate speed based on content length, starting with ideal time
+            let targetTime = idealFillTime;
+            
+            // If the content would take longer than ideal time at reasonable speed,
+            // gradually increase target time up to maximum
+            if (value.length > (idealFillTime / minTypingSpeed)) {
+                targetTime = Math.min(maxFillTime, value.length * minTypingSpeed);
+            }
+            
+            let dynamicSpeed = targetTime / value.length;
+            
+            // Clamp the speed within reasonable bounds
+            dynamicSpeed = Math.max(minTypingSpeed, Math.min(maxTypingSpeed, dynamicSpeed));
             
             for (let i = 0; i < value.length; i++) {
                 element.value += value[i];
                 element.dispatchEvent(new Event('input'));
-                await this.delay(this.typingSpeed);
+                await this.delay(dynamicSpeed);
             }
         }
         
@@ -136,6 +167,32 @@ class GrievanceFormAutoFiller {
         setTimeout(() => this.removeHighlight(element), 1000);
     }
     
+    // Scroll to element if it's out of view
+    scrollToElement(element) {
+        // Check if element is in viewport
+        const rect = element.getBoundingClientRect();
+        const viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+        const headerHeight = 100; // Account for fixed header
+        
+        // Element is out of view if:
+        // - Top is above viewport (considering header)
+        // - Bottom is below viewport
+        const isOutOfView = rect.top < headerHeight || rect.bottom > viewportHeight;
+        
+        if (isOutOfView) {
+            // Calculate scroll position to center the element in viewport
+            const elementTop = element.offsetTop;
+            const elementHeight = element.offsetHeight;
+            const scrollTop = elementTop - (viewportHeight / 2) + (elementHeight / 2);
+            
+            // Smooth scroll to the element
+            window.scrollTo({
+                top: Math.max(0, scrollTop),
+                behavior: 'smooth'
+            });
+        }
+    }
+
     // Highlight element to show it's being filled
     highlightElement(element) {
         element.style.transition = 'all 0.3s ease';
@@ -159,6 +216,10 @@ class GrievanceFormAutoFiller {
         const submitButton = document.querySelector('.submit-btn');
         
         if (submitButton) {
+            // Scroll to submit button if needed
+            this.scrollToElement(submitButton);
+            await this.delay(300);
+            
             // Focus on submit button without highlighting it yellow
             submitButton.focus();
             
